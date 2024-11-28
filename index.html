@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melhor Rota - Parque Aquático</title>
+    <!-- Incluindo vis.js via CDN -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <style>
+        /* Corpo com fundo de tema tropical - praia e parque aquático */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://images.unsplash.com/photo-1599747950871-2c88d839ab7a') no-repeat center center fixed;
+            background-size: cover;
+            color: #84ebf0;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Cabeçalho */
+        h1 {
+            color: #FFB847; /* Amarelo dourado - Sol e areia */
+            font-size: 4em;
+            font-family: 'Pacifico', cursive;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+            margin-top: 50px;
+        }
+
+        /* Subtítulo */
+        h2 {
+            font-size: 1.8em;
+            color: #00B5E2; /* Azul claro - Cor de água */
+            margin: 20px 0;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        h3 {
+            font-size: 1.6em;
+            color: #FFB847;
+        }
+
+        /* Container do grafo */
+        #grafo {
+            width: 80%;
+            height: 500px;
+            margin: 40px auto;
+            border: 5px solid #FFB847;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.3); /* Transparência para efeito de água */
+        }
+
+        /* Container da rota e custo */
+        .rota-container {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            margin: 20px auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Estilo do botão */
+        .button {
+            background-color: #FF6F00; /* Laranja - Cor vibrante de verão */
+            color: white;
+            font-size: 1.2em;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #FF9E00;
+        }
+
+        .highlight {
+            color: #FFB847;
+            font-weight: bold;
+        }
+
+        .node {
+            background-color: #00B5E2;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            padding: 15px;
+        }
+
+        /* Detalhes do título da rota */
+        .small-title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Parque Aquático - Melhor Rota</h1>
+
+    <!-- Área para exibir o grafo -->
+    <div id="grafo"></div>
+
+    <div class="rota-container">
+        <h2 class="small-title">Melhor Rota: <span id="rota" class="highlight"></span></h2>
+        <h3 class="small-title">Custo Total: <span id="custo" class="highlight"></span></h3>
+    </div>
+
+    <button class="button" onclick="carregarDados()">Atualizar Grafo</button>
+
+    <script>
+        // Função para buscar os dados da API
+        async function carregarDados() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/rota');
+                const dados = await response.json();
+
+                const grafoDados = dados.grafo;
+                const rota = dados.rota;
+                const custo = dados.custo;
+
+                // Exibir a melhor rota e o custo total
+                document.getElementById('rota').textContent = rota.join(' -> ');
+                document.getElementById('custo').textContent = custo;
+
+                // Preparar dados para vis.js
+                const nodes = [];
+                const edges = [];
+
+                // Criar nós (vertices) com tema de parque aquático
+                for (const [nome, coordenadas] of Object.entries(grafoDados)) {
+                    nodes.push({
+                        id: nome,
+                        label: nome,
+                        title: 'Este é o ponto ' + nome,
+                        shape: 'ellipse',
+                        color: { background: '#00B5E2', border: '#00799e' }, // Azul aquático
+                        font: { color: 'white', size: 20, face: 'Comic Sans MS' },
+                        x: coordenadas.x,
+                        y: coordenadas.y,
+                    });
+                }
+
+                // Criar arestas (edges) com base na rota
+                for (let i = 0; i < rota.length - 1; i++) {
+                    const origem = rota[i];
+                    const destino = rota[i + 1];
+                    edges.push({
+                        from: origem,
+                        to: destino,
+                        label: `Custo: ${custo}`,
+                        color: { color: '#FFB847' }, // Amarelo dourado
+                        font: { color: 'white', size: 15 }
+                    });
+                }
+
+                // Criar o grafo usando vis.js
+                const container = document.getElementById('grafo');
+                const data = {
+                    nodes: nodes,
+                    edges: edges
+                };
+
+                const options = {
+                    physics: {
+                        enabled: true
+                    },
+                    edges: {
+                        width: 3,
+                        color: '#00B5E2', // Cor das arestas
+                        arrows: {
+                            to: { scaleFactor: 1.5, type: 'arrow' }
+                        }
+                    },
+                    nodes: {
+                        borderWidth: 2
+                    }
+                };
+
+                const network = new vis.Network(container, data, options);
+            } catch (erro) {
+                console.error('Erro ao carregar dados:', erro);
+                alert('Erro ao carregar os dados da rota');
+            }
+        }
+
+        // Carregar dados automaticamente ao abrir a página
+        carregarDados();
+    </script>
+</body>
+</html>
