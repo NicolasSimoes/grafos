@@ -5,11 +5,11 @@ from flask_cors import CORS  # Importe o CORS
 
 app = Flask(__name__)
 
-# Permite CORS para todas as rotas
+
 CORS(app)
 
 
-# Funções do TSP
+
 def calcular_peso(distancia, tempo_espera):
     return distancia + (tempo_espera * 3)
 
@@ -70,7 +70,6 @@ for brinquedo, dados in brinquedos.items():
         peso = calcular_peso(distancia, tempo_espera)
         grafo[brinquedo].append((destino, peso))
 
-# Coordenadas fictícias dos brinquedos para o gráfico
 coordenadas = {
     "Insano": {"x": 1, "y": 5},
     "Kalafrio": {"x": 2, "y": 3},
@@ -87,7 +86,7 @@ coordenadas = {
 
 
 
-inicio = 'Moréia Negra'
+inicio = 'Insano'
 rota, custo = tsp(grafo, inicio)
 
 # Rota API
