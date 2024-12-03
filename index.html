@@ -10,9 +10,8 @@
         /* Corpo com fundo de tema tropical - praia e parque aquático */
         body {
             font-family: 'Arial', sans-serif;
-            background: url('https://images.unsplash.com/photo-1599747950871-2c88d839ab7a') no-repeat center center fixed;
+            background: url('https://turismocompartilhado.com.br/wp-content/uploads/2022/01/turismo-compartilhado-beach-park-1.jpg') no-repeat center center fixed;
             background-size: cover;
-            color: #84ebf0;
             padding: 0;
             margin: 0;
             text-align: center;
@@ -20,7 +19,7 @@
 
         /* Cabeçalho */
         h1 {
-            color: #FFB847; /* Amarelo dourado - Sol e areia */
+            color: #e99713;
             font-size: 4em;
             font-family: 'Pacifico', cursive;
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
@@ -37,7 +36,7 @@
 
         h3 {
             font-size: 1.6em;
-            color: #FFB847;
+            color: #EC620F;
         }
 
         /* Container do grafo */
@@ -47,7 +46,7 @@
             margin: 40px auto;
             border: 5px solid #FFB847;
             border-radius: 20px;
-            background-color: rgba(0, 0, 0, 0.3); /* Transparência para efeito de água */
+            background-color: #2BA6EC; /* Transparência para efeito de água */
         }
 
         /* Container da rota e custo */
@@ -62,7 +61,7 @@
 
         /* Estilo do botão */
         .button {
-            background-color: #FF6F00; /* Laranja - Cor vibrante de verão */
+            background-color: #EC620F;
             color: white;
             font-size: 1.2em;
             padding: 12px 25px;
@@ -77,12 +76,12 @@
         }
 
         .highlight {
-            color: #FFB847;
+            color: #EC620F;
             font-weight: bold;
         }
 
         .node {
-            background-color: #00B5E2;
+            background-color: #000000;
             border-radius: 50%;
             color: white;
             font-size: 18px;
@@ -99,7 +98,6 @@
 <body>
     <h1>Parque Aquático - Melhor Rota</h1>
 
-    <!-- Área para exibir o grafo -->
     <div id="grafo"></div>
 
     <div class="rota-container">
@@ -110,10 +108,9 @@
     <button class="button" onclick="carregarDados()">Atualizar Grafo</button>
 
     <script>
-        // Função para buscar os dados da API
         async function carregarDados() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/rota');
+                const response = await fetch('http://127.0.0.1:8080/rota');
                 const dados = await response.json();
 
                 const grafoDados = dados.grafo;
@@ -124,38 +121,35 @@
                 document.getElementById('rota').textContent = rota.join(' -> ');
                 document.getElementById('custo').textContent = custo;
 
-                // Preparar dados para vis.js
                 const nodes = [];
                 const edges = [];
-
-                // Criar nós (vertices) com tema de parque aquático
+                // Criar nós com base na rota
                 for (const [nome, coordenadas] of Object.entries(grafoDados)) {
                     nodes.push({
                         id: nome,
                         label: nome,
                         title: 'Este é o ponto ' + nome,
                         shape: 'ellipse',
-                        color: { background: '#00B5E2', border: '#00799e' }, // Azul aquático
-                        font: { color: 'white', size: 20, face: 'Comic Sans MS' },
+                        color: { background: '#8DBE43', border: '#00799e' },
+                        font: { color: 'Black', size: 20, face: 'Times New Roman' },
                         x: coordenadas.x,
                         y: coordenadas.y,
                     });
                 }
 
-                // Criar arestas (edges) com base na rota
+                // Criar arestas com base na rota
                 for (let i = 0; i < rota.length - 1; i++) {
                     const origem = rota[i];
                     const destino = rota[i + 1];
                     edges.push({
                         from: origem,
                         to: destino,
-                        label: `Custo: ${custo}`,
-                        color: { color: '#FFB847' }, // Amarelo dourado
-                        font: { color: 'white', size: 15 }
+                        color: { color: '#FFB847' },
+                        font: { color: 'Black', size: 15 },
+                        
                     });
                 }
 
-                // Criar o grafo usando vis.js
                 const container = document.getElementById('grafo');
                 const data = {
                     nodes: nodes,
@@ -168,10 +162,6 @@
                     },
                     edges: {
                         width: 3,
-                        color: '#00B5E2', // Cor das arestas
-                        arrows: {
-                            to: { scaleFactor: 1.5, type: 'arrow' }
-                        }
                     },
                     nodes: {
                         borderWidth: 2
@@ -185,7 +175,6 @@
             }
         }
 
-        // Carregar dados automaticamente ao abrir a página
         carregarDados();
     </script>
 </body>
