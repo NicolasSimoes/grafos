@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Melhor Rota - Parque Aquático</title>
-    <!-- Incluindo vis.js via CDN -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <style>
-        /* Corpo com fundo de tema tropical - praia e parque aquático */
+        /* Corpo com fundo de tema tropical */
         body {
             font-family: 'Arial', sans-serif;
             background: url('https://turismocompartilhado.com.br/wp-content/uploads/2022/01/turismo-compartilhado-beach-park-1.jpg') no-repeat center center fixed;
@@ -15,36 +14,27 @@
             padding: 0;
             margin: 0;
             text-align: center;
-           
         }
+
         /* Cabeçalho */
         h1 {
-    color: #21f0ff;
-    font-size: 6em;
-    font-family: 'Pacifico', cursive;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
-    margin-top: 50px;
-
-    /* Estilo da caixa */
-    background-color: rgba(0, 115, 246, 0.43); /* Fundo levemente transparente */
-    border: 2px solid #21f0ff; /* Borda com a mesma cor do texto */
-    padding: 20px; /* Espaçamento interno */
-    border-radius: 10px; /* Bordas arredondadas */
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.4); /* Sombra externa */
-}
-
-
-        /* Subtítulo */
-        h2 {
-            font-size: 1.8em;
-            color: #ffffff; /* Azul claro - Cor de água */
-            margin: 20px 0;
+            color: #21f0ff;
+            font-size: 6em;
+            font-family: 'Pacifico', cursive;
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+            margin-top: 50px;
+            background-color: rgba(0, 115, 246, 0.43); 
+            border: 2px solid #21f0ff; 
+            padding: 20px; 
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.4); 
         }
 
-        h3 {
+        /* Subtítulo */
+        h2, h3 {
             font-size: 1.6em;
             color: #ffffff;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
         }
 
         /* Container do grafo */
@@ -54,7 +44,7 @@
             margin: 40px auto;
             border: 5px solid #3df2e6;
             border-radius: 20px;
-            background-color: #2BA6EC; /* Transparência para efeito de água */
+            background-color: #2BA6EC;
         }
 
         /* Container da rota e custo */
@@ -78,22 +68,19 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+        .reset { background-color: #EC620F;
+            color: white;
+            font-size: 1.2em;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; 
+
+        }
 
         .button:hover {
             background-color: #FF9E00;
-        }
-
-        .highlight {
-            color: #f5efec;
-            font-weight: bold;
-        }
-
-        .node {
-            background-color: #000000;
-            border-radius: 50%;
-            color: white;
-            font-size: 18px;
-            padding: 15px;
         }
 
         /* Detalhes do título da rota */
@@ -101,11 +88,79 @@
             font-size: 1.2em;
             font-weight: bold;
         }
+
+        /* Formulário para alteração de tempo */
+        #form-tempo-espera {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Título do formulário */
+#form-tempo-espera h2 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+    color: #2C3E50;
+    text-align: center;
+}
+
+/* Estilo das labels */
+#form-tempo-espera label {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin: 10px 0 5px;
+}
+
+/* Estilo dos campos select e input */
+#form-tempo-espera select,
+#form-tempo-espera input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+/* Foco nos campos select e input */
+#form-tempo-espera select:focus,
+#form-tempo-espera input:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+/* Estilo do botão */
+#form-tempo-espera button {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 25px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+/* Efeito de hover do botão */
+#form-tempo-espera button:hover {
+    background-color: #2980b9;
+}
     </style>
 </head>
 <body>
     <h1>Parque Aquático - Melhor Rota</h1>
-
     <div id="grafo"></div>
 
     <div class="rota-container">
@@ -113,77 +168,193 @@
         <h3 class="small-title">Custo Total: <span id="custo" class="highlight"></span></h3>
     </div>
 
+    <form id="form-tempo-espera">
+        <label for="brinquedo">Brinquedo:</label>
+        <select id="brinquedo"></select>
+
+        <label for="tempo">Novo Tempo de Espera (min):</label>
+        <input type="number" id="tempo" min="0">
+        <button type="button" onclick="atualizarTempo()">Alterar Tempo</button>
+    </form>
+
     <button class="button" onclick="carregarDados()">Atualizar Grafo</button>
+    <button class="reset" onclick="resetarDados()">Resetar Dados</button>
 
     <script>
-        async function carregarDados() {
-            try {
-                const response = await fetch('http://127.0.0.1:8080/rota');
-                const dados = await response.json();
+       async function carregarDados() {
+        try {
+            const response = await fetch('http://127.0.0.1:8080/rota');
+            const dados = await response.json();
+            const { grafo, rota, custo } = dados;
 
-                const grafoDados = dados.grafo;
-                const rota = dados.rota;
-                const custo = dados.custo;
+            document.getElementById('rota').textContent = rota.join(' -> ');
+            document.getElementById('custo').textContent = custo;
 
-                // Exibir a melhor rota e o custo total
-                document.getElementById('rota').textContent = rota.join(' -> ');
-                document.getElementById('custo').textContent = custo;
+            const nodes = [];
+            const edges = [];
 
-                const nodes = [];
-                const edges = [];
-                // Criar nós com base na rota
-                for (const [nome, coordenadas] of Object.entries(grafoDados)) {
-                    nodes.push({
-                        id: nome,
-                        label: nome,
-                        title: 'Este é o ponto ' + nome,
-                        shape: 'ellipse',
-                        color: { background: '#8DBE43', border: '#00799e' },
-                        font: { color: 'Black', size: 20, face: 'Times New Roman' },
-                        x: coordenadas.x,
-                        y: coordenadas.y,
-                    });
-                }
-
-                // Criar arestas com base na rota
-                for (let i = 0; i < rota.length - 1; i++) {
-                    const origem = rota[i];
-                    const destino = rota[i + 1];
-                    edges.push({
-                        from: origem,
-                        to: destino,
-                        color: { color: '#FFB847' },
-                        font: { color: 'Black', size: 15 },
-                        
-                    });
-                }
-
-                const container = document.getElementById('grafo');
-                const data = {
-                    nodes: nodes,
-                    edges: edges
-                };
-
-                const options = {
-                    physics: {
-                        enabled: true
-                    },
-                    edges: {
-                        width: 3,
-                    },
-                    nodes: {
-                        borderWidth: 2
+            // Adicionando nós
+            for (const [nome, coordenadas] of Object.entries(grafo)) {
+                nodes.push({
+                    id: nome,
+                    label: nome,
+                    title: 'Ponto: ' + nome,
+                    shape: 'ellipse',
+                    fixed: true, // Nó fixo
+                    x: coordenadas.x * 100, 
+                    y: coordenadas.y * 100,
+                    color: nome === 'Insano' ? { background: '#2afa09 ' } : { background: '#8DBE43' }, // Destacar nó inicial
+                    font: {
+                        size: 30,  // Tamanho da fonte dos nós
+                        face: 'arial',  // Fonte da letra
+                        color: 'black'  // Cor da fonte
                     }
-                };
+                });
+            }
 
-                const network = new vis.Network(container, data, options);
+            // Adicionando arestas
+            for (let i = 0; i < rota.length - 1; i++) {
+                edges.push({
+                    from: rota[i],
+                    to: rota[i + 1],
+                    color: { color: '#000000 ' },
+                    font: {
+                        size: 14,  // Tamanho da fonte das arestas
+                        align: 'top',  // Alinhamento da fonte
+                        color: 'black'  // Cor da fonte
+                    }
+                });
+            }
+
+            const container = document.getElementById('grafo');
+            const data = { nodes, edges };
+            const options = {
+                physics: false, // Física desativada para fixar os nós
+                nodes: {
+                    font: {
+                        size: 18,  // Tamanho da fonte dos nós, se quiser um valor global
+                        face: 'arial',
+                        color: 'black'
+                    }
+                },
+                edges: {
+                    font: {
+                        size: 14,  // Tamanho da fonte das arestas
+                        align: 'top',  // Alinhamento da fonte
+                        color: 'black'
+                    }
+                }
+            };
+
+            // Criando o grafo
+            new vis.Network(container, data, options);
+
+            preencherOpcoesBrinquedos(Object.keys(grafo));
+            
+        } catch (erro) {
+            console.error('Erro ao carregar dados:', erro);
+            alert('Erro ao carregar os dados da rota');
+        }
+    }
+
+    function preencherOpcoesBrinquedos(brinquedos) {
+        const select = document.getElementById('brinquedo');
+        select.innerHTML = '';
+        brinquedos.forEach(nome => {
+            const option = document.createElement('option');
+            option.value = nome;
+            option.textContent = nome;
+            select.appendChild(option);
+        });
+    }
+  
+    
+
+
+    async function atualizarTempo() {
+        const brinquedo = document.getElementById('brinquedo').value;
+        const tempo = document.getElementById('tempo').value;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8080/atualizar-tempo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ brinquedo, tempo: parseInt(tempo, 10) }),
+            });
+
+            if (response.ok) {
+                alert('Tempo atualizado com sucesso!');
+                carregarDados();
+            } else {
+                throw new Error('Erro ao atualizar o tempo');
+            }
+        } catch (erro) {
+            console.error(erro);
+            alert('Erro ao atualizar o tempo de espera.');
+        }
+    }
+    async function atualizarGrafo() {
+    const inicio = document.getElementById('inicio').value;
+
+    try {
+        const response = await fetch('http://127.0.0.1:8080/atualizar-inicio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ inicio }),
+        });
+
+        if (response.ok) {
+            alert('Nó inicial atualizado com sucesso!');
+            carregarDados();
+        } else {
+            throw new Error('Erro ao atualizar o nó inicial');
+        }
+    } catch (erro) {
+        console.error(erro);
+        alert('Erro ao atualizar o nó inicial.');
+    }
+
+} async function atualizarInicio() {
+            const brinquedo = document.getElementById('brinquedo').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8080/atualizar-inicio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ inicio: brinquedo }),
+                });
+
+                if (response.ok) {
+                    alert('Nó inicial atualizado com sucesso!');
+                    carregarDados();  // Recarrega os dados
+                } else {
+                    throw new Error('Erro ao atualizar nó inicial');
+                }
             } catch (erro) {
-                console.error('Erro ao carregar dados:', erro);
-                alert('Erro ao carregar os dados da rota');
+                console.error(erro);
+                alert('Erro ao atualizar nó inicial.');
             }
         }
 
-        carregarDados();
+    function resetarDados() {
+        fetch('http://localhost:8080/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.mensagem); // Exibe a mensagem de sucesso
+            console.log(data.rota); // Log da rota
+            console.log(data.custo); // Log do custo
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    }
+
+    carregarDados();
     </script>
 </body>
 </html>
