@@ -183,16 +183,14 @@
             <button type="button" onclick="atualizarTempo()">
                 Alterar Tempo
             </button>
-        </form>
-
-        <!-- Novo formulário para definir o início da rota -->
-        <form id="form-inicio-rota">
             <label for="inicio-rota">Início da Rota:</label>
             <select id="inicio-rota"></select>
             <button type="button" onclick="atualizarInicio()">
                 Atualizar Início
             </button>
         </form>
+
+        
 
         <button class="button" onclick="carregarDados()">
             Atualizar Grafo
@@ -212,7 +210,7 @@
                     const nodes = [];
                     const edges = [];
                     console.log(custo_por_no);
-                    
+
                     // Adicionando nós com o custo
                     for (const [nome, coordenadas] of Object.entries(grafo)) {
                         // Obtendo o custo do nó a partir do objeto custo_por_no
