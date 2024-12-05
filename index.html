@@ -1,360 +1,380 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melhor Rota - Parque Aquático</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <style>
-        /* Corpo com fundo de tema tropical */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: url('https://turismocompartilhado.com.br/wp-content/uploads/2022/01/turismo-compartilhado-beach-park-1.jpg') no-repeat center center fixed;
-            background-size: cover;
-            padding: 0;
-            margin: 0;
-            text-align: center;
-        }
-
-        /* Cabeçalho */
-        h1 {
-            color: #21f0ff;
-            font-size: 6em;
-            font-family: 'Pacifico', cursive;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
-            margin-top: 50px;
-            background-color: rgba(0, 115, 246, 0.43); 
-            border: 2px solid #21f0ff; 
-            padding: 20px; 
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.4); 
-        }
-
-        /* Subtítulo */
-        h2, h3 {
-            font-size: 1.6em;
-            color: #ffffff;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
-        }
-
-        /* Container do grafo */
-        #grafo {
-            width: 80%;
-            height: 550px;
-            margin: 40px auto;
-            border: 5px solid #3df2e6;
-            border-radius: 20px;
-            background-color: #2BA6EC;
-        }
-
-        /* Container da rota e custo */
-        .rota-container {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 30px;
-            border-radius: 15px;
-            width: 80%;
-            margin: 20px auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Estilo do botão */
-        .button {
-            background-color: #EC620F;
-            color: white;
-            font-size: 1.2em;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .reset { background-color: #EC620F;
-            color: white;
-            font-size: 1.2em;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: background-color 0.3s ease; 
-
-        }
-
-        .button:hover {
-            background-color: #FF9E00;
-        }
-
-        /* Detalhes do título da rota */
-        .small-title {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        /* Formulário para alteração de tempo */
-        #form-tempo-espera {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 15px;
-    width: 80%;
-    max-width: 500px;
-    margin: 20px auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    font-family: 'Arial', sans-serif;
-}
-
-/* Título do formulário */
-#form-tempo-espera h2 {
-    font-size: 1.6em;
-    margin-bottom: 20px;
-    color: #2C3E50;
-    text-align: center;
-}
-
-/* Estilo das labels */
-#form-tempo-espera label {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin: 10px 0 5px;
-}
-
-/* Estilo dos campos select e input */
-#form-tempo-espera select,
-#form-tempo-espera input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1em;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
-}
-
-/* Foco nos campos select e input */
-#form-tempo-espera select:focus,
-#form-tempo-espera input:focus {
-    border-color: #3498db;
-    outline: none;
-}
-
-/* Estilo do botão */
-#form-tempo-espera button {
-    background-color: #3498db;
-    color: white;
-    padding: 12px 25px;
-    font-size: 1.2em;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 10px;
-}
-
-/* Efeito de hover do botão */
-#form-tempo-espera button:hover {
-    background-color: #2980b9;
-}
-    </style>
-</head>
-<body>
-    <h1>Parque Aquático - Melhor Rota</h1>
-    <div id="grafo"></div>
-
-    <div class="rota-container">
-        <h2 class="small-title">Melhor Rota: <span id="rota" class="highlight"></span></h2>
-        <h3 class="small-title">Custo Total: <span id="custo" class="highlight"></span></h3>
-    </div>
-
-    <form id="form-tempo-espera">
-        <label for="brinquedo">Brinquedo:</label>
-        <select id="brinquedo"></select>
-
-        <label for="tempo">Novo Tempo de Espera (min):</label>
-        <input type="number" id="tempo" min="0">
-        <button type="button" onclick="atualizarTempo()">Alterar Tempo</button>
-    </form>
-
-    <button class="button" onclick="carregarDados()">Atualizar Grafo</button>
-    <button class="reset" onclick="resetarDados()">Resetar Dados</button>
-
-    <script>
-       async function carregarDados() {
-        try {
-            const response = await fetch('http://127.0.0.1:8080/rota');
-            const dados = await response.json();
-            const { grafo, rota, custo } = dados;
-
-            document.getElementById('rota').textContent = rota.join(' -> ');
-            document.getElementById('custo').textContent = custo;
-
-            const nodes = [];
-            const edges = [];
-
-            // Adicionando nós
-            for (const [nome, coordenadas] of Object.entries(grafo)) {
-                nodes.push({
-                    id: nome,
-                    label: nome,
-                    title: 'Ponto: ' + nome,
-                    shape: 'ellipse',
-                    fixed: true, // Nó fixo
-                    x: coordenadas.x * 100, 
-                    y: coordenadas.y * 100,
-                    color: nome === 'Insano' ? { background: '#2afa09 ' } : { background: '#8DBE43' }, // Destacar nó inicial
-                    font: {
-                        size: 30,  // Tamanho da fonte dos nós
-                        face: 'arial',  // Fonte da letra
-                        color: 'black'  // Cor da fonte
-                    }
-                });
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Melhor Rota - Parque Aquático</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+        <style>
+            /* Corpo com fundo de tema tropical */
+            body {
+                font-family: "Arial", sans-serif;
+                background: url("https://turismocompartilhado.com.br/wp-content/uploads/2022/01/turismo-compartilhado-beach-park-1.jpg")
+                    no-repeat center center fixed;
+                background-size: cover;
+                padding: 0;
+                margin: 0;
+                text-align: center;
             }
 
-            // Adicionando arestas
-            for (let i = 0; i < rota.length - 1; i++) {
-                edges.push({
-                    from: rota[i],
-                    to: rota[i + 1],
-                    color: { color: '#000000 ' },
-                    font: {
-                        size: 14,  // Tamanho da fonte das arestas
-                        align: 'top',  // Alinhamento da fonte
-                        color: 'black'  // Cor da fonte
-                    }
-                });
+            /* Cabeçalho */
+            h1 {
+                color: #21f0ff;
+                font-size: 6em;
+                font-family: "Pacifico", cursive;
+                text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+                margin-top: 50px;
+                background-color: rgba(0, 115, 246, 0.43);
+                border: 2px solid #21f0ff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.4);
             }
 
-            const container = document.getElementById('grafo');
-            const data = { nodes, edges };
-            const options = {
-                physics: false, // Física desativada para fixar os nós
-                nodes: {
-                    font: {
-                        size: 18,  // Tamanho da fonte dos nós, se quiser um valor global
-                        face: 'arial',
-                        color: 'black'
+            /* Subtítulo */
+            h2,
+            h3 {
+                font-size: 1.6em;
+                color: #ffffff;
+                text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+            }
+
+            /* Container do grafo */
+            #grafo {
+                width: 80%;
+                height: 550px;
+                margin: 40px auto;
+                border: 5px solid #3df2e6;
+                border-radius: 20px;
+                background-color: #2ba6ec;
+            }
+
+            /* Container da rota e custo */
+            .rota-container {
+                background-color: rgba(0, 0, 0, 0.6);
+                padding: 30px;
+                border-radius: 15px;
+                width: 80%;
+                margin: 20px auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Estilo do botão */
+            .button {
+                background-color: #ec620f;
+                color: white;
+                font-size: 1.2em;
+                padding: 12px 25px;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+            .reset {
+                background-color: #ec620f;
+                color: white;
+                font-size: 1.2em;
+                padding: 12px 25px;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .button:hover {
+                background-color: #ff9e00;
+            }
+
+            /* Detalhes do título da rota */
+            .small-title {
+                font-size: 1.2em;
+                font-weight: bold;
+            }
+
+            /* Formulário para alteração de tempo */
+            #form-tempo-espera {
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 20px;
+                border-radius: 15px;
+                width: 80%;
+                max-width: 500px;
+                margin: 20px auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                font-family: "Arial", sans-serif;
+            }
+
+            /* Título do formulário */
+            #form-tempo-espera h2 {
+                font-size: 1.6em;
+                margin-bottom: 20px;
+                color: #2c3e50;
+                text-align: center;
+            }
+
+            /* Estilo das labels */
+            #form-tempo-espera label {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #333;
+                display: block;
+                margin: 10px 0 5px;
+            }
+
+            /* Estilo dos campos select e input */
+            #form-tempo-espera select,
+            #form-tempo-espera input {
+                width: 100%;
+                padding: 10px;
+                font-size: 1em;
+                border: 2px solid #ccc;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                box-sizing: border-box;
+                transition: border-color 0.3s ease;
+            }
+
+            /* Foco nos campos select e input */
+            #form-tempo-espera select:focus,
+            #form-tempo-espera input:focus {
+                border-color: #3498db;
+                outline: none;
+            }
+
+            /* Estilo do botão */
+            #form-tempo-espera button {
+                background-color: #3498db;
+                color: white;
+                padding: 12px 25px;
+                font-size: 1.2em;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                width: 100%;
+                box-sizing: border-box;
+                margin-top: 10px;
+            }
+
+            /* Efeito de hover do botão */
+            #form-tempo-espera button:hover {
+                background-color: #2980b9;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Parque Aquático - Melhor Rota</h1>
+        <div id="grafo"></div>
+
+        <div class="rota-container">
+            <h2 class="small-title">
+                Melhor Rota: <span id="rota" class="highlight"></span>
+            </h2>
+            <h3 class="small-title">
+                Custo Total: <span id="custo" class="highlight"></span>
+            </h3>
+        </div>
+
+        <form id="form-tempo-espera">
+            <label for="brinquedo">Brinquedo:</label>
+            <select id="brinquedo"></select>
+
+            <label for="tempo">Novo Tempo de Espera (min):</label>
+            <input type="number" id="tempo" min="0" />
+            <button type="button" onclick="atualizarTempo()">
+                Alterar Tempo
+            </button>
+        </form>
+
+        <!-- Novo formulário para definir o início da rota -->
+        <form id="form-inicio-rota">
+            <label for="inicio-rota">Início da Rota:</label>
+            <select id="inicio-rota"></select>
+            <button type="button" onclick="atualizarInicio()">
+                Atualizar Início
+            </button>
+        </form>
+
+        <button class="button" onclick="carregarDados()">
+            Atualizar Grafo
+        </button>
+        <button class="reset" onclick="resetarDados()">Resetar Dados</button>
+
+        <script>
+            async function carregarDados() {
+                try {
+                    const response = await fetch("http://127.0.0.1:8080/rota");
+                    const dados = await response.json();
+                    const { grafo, rota, custo, inicio, custo_por_no } = dados;
+
+                    document.getElementById("rota").textContent =
+                        rota.join(" -> ");
+                    document.getElementById("custo").textContent = custo;
+                    const nodes = [];
+                    const edges = [];
+                    console.log(custo_por_no);
+                    
+                    // Adicionando nós com o custo
+                    for (const [nome, coordenadas] of Object.entries(grafo)) {
+                        // Obtendo o custo do nó a partir do objeto custo_por_no
+                        const custoNo =
+                            custo_por_no[nome] !== undefined
+                                ? custo_por_no[nome]
+                                : 0;
+
+                        // Criação do nó
+                        nodes.push({
+                            id: nome,
+                            label: `${nome} - Custo: ${custoNo}`, // Adicionando o custo no label
+                            title: `Ponto: ${nome}\nCusto: ${custoNo}`, // Exibindo o custo no título
+                            shape: "ellipse",
+                            fixed: true, // Nó fixo
+                            x: coordenadas.x * 100,
+                            y: coordenadas.y * 100,
+                            color:
+                                nome === inicio
+                                    ? { background: "#2afa09" }
+                                    : { background: "#8DBE43" }, // Destacar nó inicial
+                            font: {
+                                size: 30, // Tamanho da fonte dos nós
+                                face: "arial", // Fonte da letra
+                                color: "black", // Cor da fonte
+                            },
+                        });
                     }
-                },
-                edges: {
-                    font: {
-                        size: 14,  // Tamanho da fonte das arestas
-                        align: 'top',  // Alinhamento da fonte
-                        color: 'black'
+
+                    // Adicionando arestas
+                    for (let i = 0; i < rota.length - 1; i++) {
+                        edges.push({
+                            from: rota[i],
+                            to: rota[i + 1],
+                            color: { color: "#000000" },
+                            font: {
+                                size: 14, // Tamanho da fonte das arestas
+                                align: "top", // Alinhamento da fonte
+                                color: "black", // Cor da fonte
+                            },
+                        });
                     }
+
+                    const container = document.getElementById("grafo");
+                    const data = { nodes, edges };
+                    const options = {
+                        physics: false, // Física desativada para fixar os nós
+                        nodes: {
+                            font: {
+                                size: 25,
+                                face: "Arial",
+                            },
+                        },
+                        edges: {
+                            smooth: false,
+                            arrows: { to: true },
+                            font: {
+                                size: 14,
+                                align: "middle",
+                            },
+                        },
+                        interaction: {
+                            dragNodes: false, // Desativar a capacidade de arrastar nós
+                        },
+                    };
+
+                    const network = new vis.Network(container, data, options);
+                    // Forçar uma atualização no grafo após definir as cores
+                    network.redraw();
+
+                    // Preencher selects com os nomes dos brinquedos
+                    const brinquedoSelect =
+                        document.getElementById("brinquedo");
+                    const inicioRotaSelect =
+                        document.getElementById("inicio-rota");
+                    brinquedoSelect.innerHTML = "";
+                    inicioRotaSelect.innerHTML = "";
+
+                    for (const nome of Object.keys(grafo)) {
+                        const option = document.createElement("option");
+                        option.value = nome;
+                        option.textContent = nome;
+                        brinquedoSelect.appendChild(option);
+
+                        const optionInicio = document.createElement("option");
+                        optionInicio.value = nome;
+                        optionInicio.textContent = nome;
+                        inicioRotaSelect.appendChild(optionInicio);
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar dados:", error);
                 }
-            };
-
-            // Criando o grafo
-            new vis.Network(container, data, options);
-
-            preencherOpcoesBrinquedos(Object.keys(grafo));
-            
-        } catch (erro) {
-            console.error('Erro ao carregar dados:', erro);
-            alert('Erro ao carregar os dados da rota');
-        }
-    }
-
-    function preencherOpcoesBrinquedos(brinquedos) {
-        const select = document.getElementById('brinquedo');
-        select.innerHTML = '';
-        brinquedos.forEach(nome => {
-            const option = document.createElement('option');
-            option.value = nome;
-            option.textContent = nome;
-            select.appendChild(option);
-        });
-    }
-  
-    
-
-
-    async function atualizarTempo() {
-        const brinquedo = document.getElementById('brinquedo').value;
-        const tempo = document.getElementById('tempo').value;
-
-        try {
-            const response = await fetch('http://127.0.0.1:8080/atualizar-tempo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ brinquedo, tempo: parseInt(tempo, 10) }),
-            });
-
-            if (response.ok) {
-                alert('Tempo atualizado com sucesso!');
-                carregarDados();
-            } else {
-                throw new Error('Erro ao atualizar o tempo');
             }
-        } catch (erro) {
-            console.error(erro);
-            alert('Erro ao atualizar o tempo de espera.');
-        }
-    }
-    async function atualizarGrafo() {
-    const inicio = document.getElementById('inicio').value;
 
-    try {
-        const response = await fetch('http://127.0.0.1:8080/atualizar-inicio', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inicio }),
-        });
+            async function atualizarTempo() {
+                const brinquedo = document.getElementById("brinquedo").value;
+                const novoTempo = document.getElementById("tempo").value;
+                try {
+                    const response = await fetch(
+                        "http://127.0.0.1:8080/atualizar-tempo",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                brinquedo,
+                                tempo: parseInt(novoTempo),
+                            }),
+                        }
+                    );
 
-        if (response.ok) {
-            alert('Nó inicial atualizado com sucesso!');
+                    if (response.ok) {
+                        carregarDados();
+                    } else {
+                        console.error("Erro ao atualizar tempo");
+                    }
+                } catch (error) {
+                    console.error("Erro ao atualizar tempo:", error);
+                }
+            }
+
+            async function atualizarInicio() {
+                const inicio = document.getElementById("inicio-rota").value;
+                try {
+                    const response = await fetch(
+                        "http://127.0.0.1:8080/atualizar-inicio",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ inicio }),
+                        }
+                    );
+
+                    if (response.ok) {
+                        carregarDados();
+                    } else {
+                        console.error("Erro ao atualizar início");
+                    }
+                } catch (error) {
+                    console.error("Erro ao atualizar início:", error);
+                }
+            }
+
+            function resetarDados() {
+                fetch("http://127.0.0.1:8080/reset", {
+                    method: "POST",
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("Dados resetados:", data);
+                        carregarDados(); // Recarrega os dados após resetar
+                    })
+                    .catch((error) =>
+                        console.error("Erro ao resetar dados:", error)
+                    );
+            }
+
+            // Carregar dados ao iniciar a página
             carregarDados();
-        } else {
-            throw new Error('Erro ao atualizar o nó inicial');
-        }
-    } catch (erro) {
-        console.error(erro);
-        alert('Erro ao atualizar o nó inicial.');
-    }
-
-} async function atualizarInicio() {
-            const brinquedo = document.getElementById('brinquedo').value;
-
-            try {
-                const response = await fetch('http://127.0.0.1:8080/atualizar-inicio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inicio: brinquedo }),
-                });
-
-                if (response.ok) {
-                    alert('Nó inicial atualizado com sucesso!');
-                    carregarDados();  // Recarrega os dados
-                } else {
-                    throw new Error('Erro ao atualizar nó inicial');
-                }
-            } catch (erro) {
-                console.error(erro);
-                alert('Erro ao atualizar nó inicial.');
-            }
-        }
-
-    function resetarDados() {
-        fetch('http://localhost:8080/reset', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.mensagem); // Exibe a mensagem de sucesso
-            console.log(data.rota); // Log da rota
-            console.log(data.custo); // Log do custo
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-        });
-    }
-
-    carregarDados();
-    </script>
-</body>
+        </script>
+    </body>
 </html>
